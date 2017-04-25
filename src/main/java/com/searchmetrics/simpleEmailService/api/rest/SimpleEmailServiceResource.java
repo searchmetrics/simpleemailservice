@@ -1,7 +1,6 @@
 package com.searchmetrics.simpleEmailService.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,12 +16,6 @@ import java.util.Optional;
 @Path("/")
 public class SimpleEmailServiceResource {
 
-    private final ObjectMapper OM;
-
-    public SimpleEmailServiceResource(ObjectMapper OM) {
-        this.OM = OM;
-    }
-
     @GET
     @Path("helloWorld")
     @Produces(MediaType.APPLICATION_JSON)
@@ -30,7 +23,7 @@ public class SimpleEmailServiceResource {
             return Response.ok().entity(new HelloWorldResponse(potentialUserName, "Hello World, %s")).build();
     }
 
-    private static class HelloWorldResponse {
+    static class HelloWorldResponse {
         private final String user;
         private final String msg;
 

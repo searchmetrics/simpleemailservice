@@ -1,35 +1,30 @@
 package com.searchmetrics.simpleEmailService.api.rest;
 
-import java.util.Optional;
-import javax.ws.rs.core.Response;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.Optional;
 
 /**
  *
  */
 public class SimpleEmailServiceResourceTest {
-    SimpleEmailServiceResource serviceResource;
-
-    @Before
-    public void setUp() throws Exception {
-        final ObjectMapper objectMapper = Jackson.newObjectMapper();
-        serviceResource = new SimpleEmailServiceResource(objectMapper);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
+    private static final SimpleEmailServiceResource SIMPLE_EMAIL_SERVICE_RESOURCE =
+        new SimpleEmailServiceResource();
+    private static final ObjectMapper OM = Jackson.newObjectMapper();
 
     @Test
     public void helloWorld() throws Exception {
-//        final Optional<String> userName = Optional.of("");
-//        Response response = serviceResource.helloWorld(userName);
+        Assert.assertNotNull(SIMPLE_EMAIL_SERVICE_RESOURCE.helloWorld(Optional.empty()));
+
+//        Assert.assertEquals("F2U",
+//            OM.readValue(SIMPLE_EMAIL_SERVICE_RESOURCE
+//                .helloWorld(Optional.empty())
+//                .getEntity(String.class),
+//                SimpleEmailServiceResource.HelloWorldResponse.class)
+//                .getUser()
+//        );
     }
 }
