@@ -15,7 +15,6 @@ public class SimpleEmailApplication extends Application<Config> {
 
     @Override
     public void run(Config config, Environment environment) throws Exception {
-
         environment.jersey().register(SimpleEmailServiceResource.class);
     }
 }

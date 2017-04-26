@@ -15,6 +15,7 @@
         <jacoco.version>0.7.9</jacoco.version>
         <mockito.version>2.7.22</mockito.version>
         <testng.version>6.10</testng.version>
+        <javax.version>1.4</javax.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
@@ -56,6 +57,11 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-dynamodb</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-ses</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -94,6 +100,14 @@
             <artifactId>dropwizard-testing</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${javax.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>
