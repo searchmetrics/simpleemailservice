@@ -13,9 +13,6 @@ import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  *
@@ -65,33 +62,6 @@ public class SimpleEmailServiceResource {
         @JsonProperty
         public String getStatusMessage() {
             return STATUS_MESSAGE;
-        }
-    }
-
-    @GET
-    @Path("helloWorld")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response helloWorld(@QueryParam("userName") final Optional<String> potentialUserName) {
-            return Response.ok().entity(new HelloWorldResponse(potentialUserName, "Hello World, %s")).build();
-    }
-
-    static class HelloWorldResponse {
-        private final String user;
-        private final String msg;
-
-        public HelloWorldResponse(Optional<String> user, String msg) {
-            this.user = user.orElseGet(() -> "F2U");
-            this.msg = String.format(msg, this.user);
-        }
-
-        @JsonProperty
-        public String getUser() {
-            return user;
-        }
-
-        @JsonProperty
-        public String getMsg() {
-            return msg;
         }
     }
 }
