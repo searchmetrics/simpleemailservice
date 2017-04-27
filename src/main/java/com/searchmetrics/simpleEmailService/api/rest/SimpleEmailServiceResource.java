@@ -5,17 +5,12 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
-import sun.java2d.pipe.SpanShapeRenderer;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -28,7 +23,7 @@ import java.util.Optional;
 @Path("/")
 public class SimpleEmailServiceResource {
     final AWSCredentials CREDENTIALS;
-    final AmazonSimpleEmailServiceClient CLIENT;
+    AmazonSimpleEmailServiceClient client;
 
     public SimpleEmailServiceResource() {
         try {
@@ -41,33 +36,34 @@ public class SimpleEmailServiceResource {
             );
         }
 
-        CLIENT = new AmazonSimpleEmailServiceClient(CREDENTIALS);
+        client = new AmazonSimpleEmailServiceClient(CREDENTIALS);
         Region REGION = Region.getRegion(Regions.EU_WEST_1);
+        client.setRegion(REGION);
     }
 
-    @GET
+    @POST
     @Path("sendEmail")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendEmail() {
-        List<String> toEmailList = new ArrayList<>();
-        toEmailList.add("linus.jahn@searchmetrics.com");
-        toEmailList.add("a.robinson@searchmetrics.com");
+    public Response sendEmail(SendEmailRequest emailRequest) {
+//        List<String> toEmailList = new ArrayList<>();
+//        toEmailList.add("linus.jahn@searchmetrics.com");
+//        toEmailList.add("a.robinson@searchmetrics.com");
 
-        List<SendEmailRequest.Attachment> attachmentList = new ArrayList<>();
-        attachmentList.add(new SendEmailRequest.Attachment("hello.txt", "text/plain", "Hello this is a text!"));
+//        List<SendEmailRequest.Attachment> attachmentList = new ArrayList<>();
+//        attachmentList.add(new SendEmailRequest.Attachment("hello.txt", "text/plain", "Hello this is a text!"));
 
-        Optional optionalAttachmentList = Optional.of(attachmentList);
+//        Optional optionalAttachmentList = Optional.of(attachmentList);
 
-        SendEmailRequest emailRequest = new SendEmailRequest(
-                toEmailList,
-                "Hello World",
-                "This is a very cool message.",
-                optionalAttachmentList
-        );
+//        SendEmailRequest emailRequest = new SendEmailRequest(
+//                toEmailList,
+//                "Hello World",
+//                "This is a very cool message.",
+//                optionalAttachmentList
+//        );
 
-        SendRawEmailRequest rawEmailRequest = emailRequest.toRawEmailRequest();
+        SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
 
-        CLIENT.sendRawEmail(rawEmailRequest);
+        client.sendRawEmail(rawEmailRequest);
 
         return Response.ok().entity(new SendEmailResponse("Sent Email.")).build();
     }

@@ -4,11 +4,8 @@ import com.amazonaws.services.simpleemail.model.RawMessage;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javassist.bytecode.ByteArray;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -21,11 +18,7 @@ import javax.mail.util.ByteArrayDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.UUID;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -33,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  */
 public class SendEmailRequest {
-    private final static String FROM_EMAIL = "noreply@dev.searchmetrics.space";
+    private final static String FROM_EMAIL = "linus.jahn@searchmetrics.com";
     private final static String EMAIL_REPLY_TO = "noreply@dev.searchmetrics.space";
 
     private final List<String> toEmailList;
@@ -90,6 +83,25 @@ public class SendEmailRequest {
         }
     }
 
+    @JsonCreator
+    public SendEmailRequest(
+            @JsonProperty String toEmail,
+            @JsonProperty String subject,
+            @JsonProperty String messageBody,
+            @JsonProperty Optional<List<Attachment>> optionalAttachmentList
+    ) {
+        List<String> newList = new ArrayList<>();
+        newList.add(checkNotNull(toEmail));
+        this.toEmailList = newList;
+        this.subject = checkNotNull(subject);
+        this.messageBody = checkNotNull(messageBody);
+        this.optionalAttachmentList = optionalAttachmentList;
+
+        if (toEmailList.size() < 1) {
+            throw new IllegalArgumentException("toEmailList must contain 1 or more values");
+        }
+    }
+
     @JsonProperty
     public List<String> getToEmailList() {
         return toEmailList;
@@ -105,7 +117,7 @@ public class SendEmailRequest {
         return messageBody;
     }
 
-    public SendRawEmailRequest toRawEmailRequest() throws RuntimeException {
+    public SendRawEmailRequest toAWSRawEmailRequest() throws RuntimeException {
         try {
             Session session = Session.getDefaultInstance(new Properties());
             MimeMessage message = new MimeMessage(session);
@@ -138,6 +150,7 @@ public class SendEmailRequest {
 
             html.setContent("<html><body><h1>HTML</h1>\n" + messageBody + "</body></html>", "text/html");
 
+
             //
             // Add all existing attachments
             //
@@ -160,10 +173,10 @@ public class SendEmailRequest {
             // print raw email to the console
             message.writeTo(System.out);
 
-            //
-            // Create a the raw message & email request
-            //
 
+            //
+            // Create the raw message & email request
+            //
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             message.writeTo(outputStream);
@@ -178,73 +191,4 @@ public class SendEmailRequest {
             return null;
         }
     }
-
-
-
-
-
-//    @JsonProperty
-//    public Optional<List<Attachment>> getOptionalAttachmentList() {
-//        return optionalAttachmentList;
-//    }
-
-    //    @JsonCreator
-//    public SendEmailRequest(
-//            final List<String> emailList) throws IllegalArgumentException {
-//        optioanlAttachmentList = new ArrayList<Attachment>();
-//
-//        toEmailList = checkNotNull(emailList);
-//        if (toEmailList.size() < 1) {
-//            throw new IllegalArgumentException("toEmailList must contain 1 or more values");
-//        }
-//
-//    }
-//    public void addAttachment(String name, String mimeType, String data) throws RuntimeException {
-//        if (!attachmentListContainsName(name)) {
-//            optioanlAttachmentList.add(new Attachment(name, mimeType, data));
-//        } else {
-//            throw new RuntimeException();
-//        }
-//    }
-//
-//    private boolean attachmentListContainsName(String name) {
-//        Iterator<Attachment> iterator = optioanlAttachmentList.iterator();
-//        // find attachment that has this name
-//        while (iterator.hasNext()) {
-//            Attachment attachment = iterator.next();
-//            if (attachment.getName() == name) {
-//                return true;
-//            }
-//        }
-//        // list doesn't contain attachment with this name
-//        return false;
-//    }
-//
-//    public String getAttachmentMimeTypeByName(String name) {
-//        Iterator<Attachment> iterator = optioanlAttachmentList.iterator();
-//        // find attachment that has this name
-//        while (iterator.hasNext()) {
-//            Attachment attachment = iterator.next();
-//            if (attachment.getName() == name) {
-//                return attachment.getMimeType();
-//            }
-//        }
-//
-//        // unsuccessful
-//        return "";
-//    }
-//
-//    public String getAttachmentDataByName(String name) {
-//        Iterator<Attachment> iterator = optioanlAttachmentList.iterator();
-//        // find attachment that has this name
-//        while (iterator.hasNext()) {
-//            Attachment attachment = iterator.next();
-//            if (attachment.getName() == name) {
-//                return attachment.getData();
-//            }
-//        }
-//
-//        // unsuccessful
-//        return "";
-//    }
 }
