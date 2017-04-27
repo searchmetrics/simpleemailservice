@@ -5,16 +5,11 @@ import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import javax.mail.internet.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,14 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  */
 public class SendEmailRequest {
-    private final static String FROM_EMAIL = "linus.jahn@searchmetrics.com";
-    private final static String EMAIL_REPLY_TO = "noreply@dev.searchmetrics.space";
-
-    private final List<String> toEmailList;
-    private final String subject;
-    private final String messageBody;
-    private final Optional<List<Attachment>> optionalAttachmentList;
-
     public static class Attachment {
         private final String name;
         private final String mimeType;
@@ -41,66 +28,57 @@ public class SendEmailRequest {
 
         @JsonCreator
         public Attachment(
-                @JsonProperty String name,
-                @JsonProperty String mimeType,
-                @JsonProperty String data
+                @JsonProperty("name") String name,
+                @JsonProperty("mimeType") String mimeType,
+                @JsonProperty("data") String data
         ) {
             this.name = name;
             this.mimeType = mimeType;
             this.data = data;
         }
 
-        @JsonProperty
+        @JsonProperty("name")
         public final String getName() {
             return name;
         }
 
-        @JsonProperty
+        @JsonProperty("mimeType")
         public final String getMimeType() {
             return mimeType;
         }
 
-        @JsonProperty
+        @JsonProperty("data")
         public final String getData() {
             return data;
         }
     }
+
+    private final static String FROM_EMAIL = "linus.jahn@searchmetrics.com";
+    private final static String EMAIL_REPLY_TO = "noreply@dev.searchmetrics.space";
+
+    private final static Session SESSION = Session.getDefaultInstance(new Properties());
+
+    private final List<String> toEmailList;
+    private final String subject;
+    private final String messageBody;
+    private final Optional<List<Attachment>> attachmentList;
 
     @JsonCreator
     public SendEmailRequest(
             @JsonProperty("toEmailList") List<String> toEmailList,
             @JsonProperty("subject") String subject,
             @JsonProperty("messageBody") String messageBody,
-            @JsonProperty("optionalAttachmentList") Optional<List<Attachment>> optionalAttachmentList
+            @JsonProperty("attachmentList") Optional<List<Attachment>> attachmentList
     ) {
         this.toEmailList = checkNotNull(toEmailList);
         this.subject = checkNotNull(subject);
         this.messageBody = checkNotNull(messageBody);
-        this.optionalAttachmentList = optionalAttachmentList;
+        this.attachmentList = attachmentList;
 
         if (toEmailList.size() < 1) {
             throw new IllegalArgumentException("toEmailList must contain 1 or more values");
         }
     }
-
-//    @JsonCreator
-//    public SendEmailRequest(
-//            @JsonProperty String toEmail,
-//            @JsonProperty String subject,
-//            @JsonProperty String messageBody,
-//            @JsonProperty Optional<List<Attachment>> optionalAttachmentList
-//    ) {
-//        List<String> newList = new ArrayList<>();
-//        newList.add(checkNotNull(toEmail));
-//        this.toEmailList = newList;
-//        this.subject = checkNotNull(subject);
-//        this.messageBody = checkNotNull(messageBody);
-//        this.optionalAttachmentList = optionalAttachmentList;
-//
-//        if (toEmailList.size() < 1) {
-//            throw new IllegalArgumentException("toEmailList must contain 1 or more values");
-//        }
-//    }
 
     @JsonProperty
     public List<String> getToEmailList() {
@@ -119,8 +97,7 @@ public class SendEmailRequest {
 
     public SendRawEmailRequest toAWSRawEmailRequest() throws RuntimeException {
         try {
-            Session session = Session.getDefaultInstance(new Properties());
-            MimeMessage message = new MimeMessage(session);
+            MimeMessage message = new MimeMessage(SESSION);
 
             message.setSubject(subject, "UTF-8");
             message.setFrom(new InternetAddress(FROM_EMAIL));
@@ -148,21 +125,22 @@ public class SendEmailRequest {
             message.setContent(content);
             content.addBodyPart(wrap);
 
-            html.setContent("<html><body><h1>HTML</h1>\n" + messageBody + "</body></html>", "text/html");
+            html.setContent("<html><body>" + messageBody + "</body></html>", "text/html");
 
 
             //
             // Add all existing attachments
             //
 
-            if (optionalAttachmentList.isPresent()) {
-                for (Attachment localAttachment : optionalAttachmentList.get()) {
+            if (attachmentList.isPresent()) {
+                for (Attachment localAttachment : attachmentList.get()) {
                     String id = UUID.randomUUID().toString();
 
-                    MimeBodyPart attachment = new MimeBodyPart();
+                    // the input string we get from JSON is base64 encoded
+                    MimeBodyPart attachment = new PreencodedMimeBodyPart("base64");
+                    attachment.setText(localAttachment.getData());
 
-                    ByteArrayDataSource bds = new ByteArrayDataSource(localAttachment.getData(), localAttachment.getMimeType());
-                    attachment.setDataHandler(new DataHandler(bds));
+                    attachment.setHeader("Content-Type", localAttachment.getMimeType());
                     attachment.setHeader("Content-ID", "<" + id + ">");
                     attachment.setFileName(localAttachment.getName());
 

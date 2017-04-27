@@ -45,26 +45,13 @@ public class SimpleEmailServiceResource {
     @Path("sendEmail")
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendEmail(SendEmailRequest emailRequest) {
-//        List<String> toEmailList = new ArrayList<>();
-//        toEmailList.add("linus.jahn@searchmetrics.com");
-//        toEmailList.add("a.robinson@searchmetrics.com");
-
-//        List<SendEmailRequest.Attachment> attachmentList = new ArrayList<>();
-//        attachmentList.add(new SendEmailRequest.Attachment("hello.txt", "text/plain", "Hello this is a text!"));
-
-//        Optional optionalAttachmentList = Optional.of(attachmentList);
-
-//        SendEmailRequest emailRequest = new SendEmailRequest(
-//                toEmailList,
-//                "Hello World",
-//                "This is a very cool message.",
-//                optionalAttachmentList
-//        );
-
+        // convert the parsed dto to a sendable email for AWS
         SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
 
+        // send the email
         client.sendRawEmail(rawEmailRequest);
 
+        // return 200 code and an answer that the email was sent
         return Response.ok().entity(new SendEmailResponse("Sent Email.")).build();
     }
 
