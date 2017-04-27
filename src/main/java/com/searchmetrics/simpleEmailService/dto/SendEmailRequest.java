@@ -95,6 +95,11 @@ public class SendEmailRequest {
         return messageBody;
     }
 
+    @JsonProperty
+    public Optional<List<Attachment>> getAttachmentList() {
+        return attachmentList;
+    }
+
     public SendRawEmailRequest toAWSRawEmailRequest() throws RuntimeException {
         try {
             MimeMessage message = new MimeMessage(SESSION);
@@ -125,7 +130,7 @@ public class SendEmailRequest {
             message.setContent(content);
             content.addBodyPart(wrap);
 
-            html.setContent("<html><body>" + messageBody + "</body></html>", "text/html");
+            html.setContent(messageBody, "text/html");
 
 
             //
