@@ -68,10 +68,10 @@ public class SendEmailRequest {
 
     @JsonCreator
     public SendEmailRequest(
-            @JsonProperty List<String> toEmailList,
-            @JsonProperty String subject,
-            @JsonProperty String messageBody,
-            @JsonProperty Optional<List<Attachment>> optionalAttachmentList
+            @JsonProperty("toEmailList") List<String> toEmailList,
+            @JsonProperty("subject") String subject,
+            @JsonProperty("messageBody") String messageBody,
+            @JsonProperty("optionalAttachmentList") Optional<List<Attachment>> optionalAttachmentList
     ) {
         this.toEmailList = checkNotNull(toEmailList);
         this.subject = checkNotNull(subject);
@@ -83,24 +83,24 @@ public class SendEmailRequest {
         }
     }
 
-    @JsonCreator
-    public SendEmailRequest(
-            @JsonProperty String toEmail,
-            @JsonProperty String subject,
-            @JsonProperty String messageBody,
-            @JsonProperty Optional<List<Attachment>> optionalAttachmentList
-    ) {
-        List<String> newList = new ArrayList<>();
-        newList.add(checkNotNull(toEmail));
-        this.toEmailList = newList;
-        this.subject = checkNotNull(subject);
-        this.messageBody = checkNotNull(messageBody);
-        this.optionalAttachmentList = optionalAttachmentList;
-
-        if (toEmailList.size() < 1) {
-            throw new IllegalArgumentException("toEmailList must contain 1 or more values");
-        }
-    }
+//    @JsonCreator
+//    public SendEmailRequest(
+//            @JsonProperty String toEmail,
+//            @JsonProperty String subject,
+//            @JsonProperty String messageBody,
+//            @JsonProperty Optional<List<Attachment>> optionalAttachmentList
+//    ) {
+//        List<String> newList = new ArrayList<>();
+//        newList.add(checkNotNull(toEmail));
+//        this.toEmailList = newList;
+//        this.subject = checkNotNull(subject);
+//        this.messageBody = checkNotNull(messageBody);
+//        this.optionalAttachmentList = optionalAttachmentList;
+//
+//        if (toEmailList.size() < 1) {
+//            throw new IllegalArgumentException("toEmailList must contain 1 or more values");
+//        }
+//    }
 
     @JsonProperty
     public List<String> getToEmailList() {
