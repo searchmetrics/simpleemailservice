@@ -49,14 +49,9 @@ public class SimpleEmailServiceResource {
             // send the email
             client.sendRawEmail(rawEmailRequest);
 
-        } catch (InternalServerErrorException e) {
+        } catch (Exception e) {
             return Response
                     .serverError()
-                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
-                    .build();
-        } catch (IllegalArgumentException e) {
-            return Response
-                    .status(400)
                     .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
                     .build();
         }
