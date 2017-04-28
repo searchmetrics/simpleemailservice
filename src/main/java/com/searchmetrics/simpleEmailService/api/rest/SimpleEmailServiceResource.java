@@ -6,13 +6,19 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
+import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
+import com.searchmetrics.simpleEmailService.dto.SendStatistics;
+import org.junit.experimental.theories.DataPoint;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -71,5 +77,22 @@ public class SimpleEmailServiceResource {
         public String getStatusMessage() {
             return STATUS_MESSAGE;
         }
+    }
+
+    @GET
+    @Path("sendStatistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSendStatistics() {
+        //
+        // Get send statistics from AWS
+        //
+
+        GetSendStatisticsRequest statsRequest = new GetSendStatisticsRequest();
+        GetSendStatisticsResult statsResponse = client.getSendStatistics(statsRequest);
+
+        // Create a new send statistics dto from the response
+        SendStatistics sendStatistics = new SendStatistics(statsResponse);
+
+        return Response.ok().entity(sendStatistics).build();
     }
 }
