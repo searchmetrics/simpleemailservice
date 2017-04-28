@@ -4,7 +4,9 @@ import com.amazonaws.services.simpleemail.model.RawMessage;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.searchmetrics.simpleEmailService.Config;
 
+import javax.inject.Inject;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -54,9 +56,7 @@ public class SendEmailRequest {
         }
     }
 
-    private final static boolean PRINT_EMAIL = true;
-    private final static String FROM_EMAIL = "linus.jahn@searchmetrics.com";
-    private final static String EMAIL_REPLY_TO = "noreply@dev.searchmetrics.space";
+    private static Config config;
 
     private final static Session SESSION = Session.getDefaultInstance(new Properties());
 
@@ -102,6 +102,10 @@ public class SendEmailRequest {
         return attachmentList;
     }
 
+    public static void setConfig(Config config) {
+        SendEmailRequest.config = config;
+    }
+
     public SendRawEmailRequest toAWSRawEmailRequest() throws IllegalArgumentException, InternalServerErrorException {
         // create a new message
         MimeMessage message = new MimeMessage(SESSION);
@@ -122,8 +126,8 @@ public class SendEmailRequest {
         //
 
         try {
-            message.setFrom(new InternetAddress(FROM_EMAIL));
-            message.setReplyTo(new Address[]{new InternetAddress(EMAIL_REPLY_TO)});
+            message.setFrom(new InternetAddress(config.getSimpleEmailService().getFromEmailAddress()));
+            message.setReplyTo(new Address[]{new InternetAddress(config.getSimpleEmailService().getReplyToEmailAddress())});
         } catch (Exception e) {
             throw  new InternalServerErrorException("Could not set From or Reply-To Address.");
         }
@@ -234,7 +238,7 @@ public class SendEmailRequest {
 
 
         // Optionally print raw email to the console
-        if (PRINT_EMAIL) {
+        if (config.getSimpleEmailService().getPrintOutgoingEmails()) {
             try {
                 message.writeTo(System.out);
             } catch (Exception e) {}

@@ -6,3 +6,8 @@ server:
   adminConnectors:
     - type: http
       port: 10002
+
+simpleEmailService:
+  fromEmailAddress: linus.jahn@searchmetrics.com
+  replyToEmailAddress: linus.jahn@searchmetrics.com
+  printOutgoingEmails: true
