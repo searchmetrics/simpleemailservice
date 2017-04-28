@@ -10,6 +10,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
+import javax.ws.rs.InternalServerErrorException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -53,6 +54,7 @@ public class SendEmailRequest {
         }
     }
 
+    private final static boolean PRINT_EMAIL = true;
     private final static String FROM_EMAIL = "linus.jahn@searchmetrics.com";
     private final static String EMAIL_REPLY_TO = "noreply@dev.searchmetrics.space";
 
@@ -100,14 +102,38 @@ public class SendEmailRequest {
         return attachmentList;
     }
 
-    public SendRawEmailRequest toAWSRawEmailRequest() throws RuntimeException {
-        try {
-            MimeMessage message = new MimeMessage(SESSION);
+    public SendRawEmailRequest toAWSRawEmailRequest() throws IllegalArgumentException, InternalServerErrorException {
+        // create a new message
+        MimeMessage message = new MimeMessage(SESSION);
 
+        //
+        // Subject
+        //
+
+        try {
             message.setSubject(subject, "UTF-8");
+        } catch (MessagingException e) {
+            throw new IllegalArgumentException("Invalid subject.");
+        }
+
+
+        //
+        // From & Reply-To Address
+        //
+
+        try {
             message.setFrom(new InternetAddress(FROM_EMAIL));
             message.setReplyTo(new Address[]{new InternetAddress(EMAIL_REPLY_TO)});
+        } catch (Exception e) {
+            throw  new InternalServerErrorException("Could not set From or Reply-To Address.");
+        }
 
+
+        //
+        // To-Email Addresses
+        //
+
+        try {
             Iterator<String> iterator = toEmailList.iterator();
             while (iterator.hasNext()) {
                 message.addRecipient(
@@ -115,63 +141,123 @@ public class SendEmailRequest {
                         new InternetAddress(iterator.next())
                 );
             }
+        } catch (MessagingException e) {
+            throw new IllegalArgumentException("Invalid To-Address list.");
+        }
 
-            // Cover wrap
-            MimeBodyPart wrap = new MimeBodyPart();
 
-            // Alternative TEXT/HTML content
-            MimeMultipart cover = new MimeMultipart("alternative");
-            MimeBodyPart html = new MimeBodyPart();
+        //
+        // Create a multipart E-Mail
+        //
+
+        // Cover wrap
+        MimeMultipart cover = new MimeMultipart("alternative");
+        MimeBodyPart wrap = new MimeBodyPart();
+
+        // full content (everything)
+        MimeMultipart content = new MimeMultipart("related");
+        // message body
+        MimeBodyPart html = new MimeBodyPart();
+
+        try {
+            // add body to cover
             cover.addBodyPart(html);
-
+            // add cover to wrap
             wrap.setContent(cover);
 
-            MimeMultipart content = new MimeMultipart("related");
+            // add full content to message
             message.setContent(content);
+            // add wrap as body part to full content
             content.addBodyPart(wrap);
+        } catch (MessagingException e) {
+            throw new InternalServerErrorException("Could not create multipart E-Mail");
+        }
 
+
+        //
+        // Message body
+        //
+
+        try {
             html.setContent(messageBody, "text/html");
+        } catch (MessagingException e) {
+            throw new IllegalArgumentException("Invalid messageBody.");
+        }
 
 
-            //
-            // Add all existing attachments
-            //
+        //
+        // Add all existing attachments
+        //
 
-            if (attachmentList.isPresent()) {
-                for (Attachment localAttachment : attachmentList.get()) {
-                    String id = UUID.randomUUID().toString();
+        if (attachmentList.isPresent()) {
+            for (Attachment localAttachment : attachmentList.get()) {
+                // generate a new random UUID
+                String id = UUID.randomUUID().toString();
 
-                    // the input string we get from JSON is base64 encoded
-                    MimeBodyPart attachment = new PreencodedMimeBodyPart("base64");
+                // Base64 data
+                MimeBodyPart attachment = new PreencodedMimeBodyPart("base64");
+                try {
                     attachment.setText(localAttachment.getData());
+                } catch (MessagingException e) {
+                    throw new IllegalArgumentException("Invalid attachment data. (Is it base64?)");
+                }
 
+                // Set the Mime-Type
+                try {
                     attachment.setHeader("Content-Type", localAttachment.getMimeType());
-                    attachment.setHeader("Content-ID", "<" + id + ">");
-                    attachment.setFileName(localAttachment.getName());
+                } catch (MessagingException e) {
+                    throw new IllegalArgumentException("Invalid mimeType.");
+                }
 
+                // Set the Content UUID
+                try {
+                    attachment.setHeader("Content-ID", "<" + id + ">");
+                } catch (MessagingException e) {
+                    throw new InternalServerErrorException("Invalid content-id in attachment.");
+                }
+
+                // Set the file name
+                try {
+                    attachment.setFileName(localAttachment.getName());
+                } catch (MessagingException e) {
+                    throw new IllegalArgumentException("Invalid attachment file name.");
+                }
+
+                // Add the attachment
+                try {
                     content.addBodyPart(attachment);
+                } catch (MessagingException e) {
+                    throw new InternalServerErrorException("Could not add attachment to message.");
                 }
             }
-
-            // print raw email to the console
-            message.writeTo(System.out);
-
-
-            //
-            // Create the raw message & email request
-            //
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            message.writeTo(outputStream);
-            RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
-
-            SendRawEmailRequest emailRequest = new SendRawEmailRequest(rawMessage);
-
-            return emailRequest;
-        } catch (MessagingException e) {
-            return null;
-        } catch (IOException e) {
-            return null;
         }
+
+
+        // Optionally print raw email to the console
+        if (PRINT_EMAIL) {
+            try {
+                message.writeTo(System.out);
+            } catch (Exception e) {}
+        }
+
+
+        //
+        // Create the raw message & email request
+        //
+
+        // Write raw E-Mail to output stream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            message.writeTo(outputStream);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Could write raw E-Mail to output stream.");
+        }
+
+        // Create a AWS raw message and send request from the output stream
+        RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
+        SendRawEmailRequest emailRequest = new SendRawEmailRequest(rawMessage);
+
+        // return the AWS SendRawEmailRequest
+        return emailRequest;
     }
 }

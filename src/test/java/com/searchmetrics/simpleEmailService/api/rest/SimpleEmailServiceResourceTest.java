@@ -22,5 +22,9 @@ import static org.mockito.Mockito.doReturn;
  *
  */
 public class SimpleEmailServiceResourceTest {
+    @Test
+    public void testSendEmail() {
+
+    }
 
 }

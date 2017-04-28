@@ -42,14 +42,27 @@ public class SimpleEmailServiceResource {
     @Path("sendEmail")
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendEmail(SendEmailRequest emailRequest) {
-        // convert the parsed dto to a sendable email for AWS
-        SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
+        try {
+            // convert the parsed dto to a sendable email for AWS
+            SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
 
-        // send the email
-        client.sendRawEmail(rawEmailRequest);
+            // send the email
+            client.sendRawEmail(rawEmailRequest);
 
-        // return 200 code and an answer that the email was sent
-        return Response.ok().entity(new SendEmailResponse("Sent Email.")).build();
+        } catch (InternalServerErrorException e) {
+            return Response
+                    .serverError()
+                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response
+                    .status(400)
+                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
+                    .build();
+        }
+
+        // return 200 code and
+        return Response.ok().entity(new SendEmailResponse("E-Mail was sent.")).build();
     }
 
     static class SendEmailResponse {
