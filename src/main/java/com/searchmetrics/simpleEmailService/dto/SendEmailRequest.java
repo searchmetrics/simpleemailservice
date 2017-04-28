@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.Config;
 
-import javax.inject.Inject;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -14,7 +13,6 @@ import javax.mail.Session;
 import javax.mail.internet.*;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 

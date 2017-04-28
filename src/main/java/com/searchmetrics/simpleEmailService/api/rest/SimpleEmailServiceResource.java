@@ -12,13 +12,13 @@ import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
-import org.junit.experimental.theories.DataPoint;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Date;
-import java.util.List;
 
 /**
  *
