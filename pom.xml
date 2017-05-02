@@ -130,17 +130,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.smoketurner</groupId>
-            <artifactId>dropwizard-swagger</artifactId>
-            <version>${dropwizard-swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-core</artifactId>
-            <version>1.5.9</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version><!--$NO-MVN-MAN-VER$-->
