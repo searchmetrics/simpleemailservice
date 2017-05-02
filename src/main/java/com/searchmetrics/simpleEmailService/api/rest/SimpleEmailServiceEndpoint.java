@@ -10,13 +10,11 @@ import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -24,11 +22,14 @@ import javax.ws.rs.core.Response;
  *
  */
 @Path("/")
-public class SimpleEmailServiceResource {
-    final AWSCredentials CREDENTIALS;
-    AmazonSimpleEmailServiceClient client;
+public class SimpleEmailServiceEndpoint {
+    private ServiceMetrics serviceMetrics;
+    private final AWSCredentials CREDENTIALS;
+    private AmazonSimpleEmailServiceClient client;
 
-    public SimpleEmailServiceResource() {
+    public SimpleEmailServiceEndpoint(ServiceMetrics serviceMetrics) {
+        this.serviceMetrics = serviceMetrics;
+
         try {
             CREDENTIALS = new ProfileCredentialsProvider().getCredentials();
         } catch (Exception e) {
@@ -55,7 +56,19 @@ public class SimpleEmailServiceResource {
             // send the email
             client.sendRawEmail(rawEmailRequest);
 
+//        } catch (IllegalArgumentException e) {
+//            return Response
+//                    .status(400)
+//                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
+//                    .build();
+//        } catch (InternalServerErrorException e) {
+//            return Response
+//                    .serverError()
+//                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
+//                    .build();
         } catch (Exception e) {
+            serviceMetrics.markSendEmailException();
+
             return Response
                     .serverError()
                     .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
