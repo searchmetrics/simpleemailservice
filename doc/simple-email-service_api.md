@@ -42,3 +42,21 @@ A simple attachment for an E-Mail
  * `name = String`: The file name of the attachment.
  * `mimeType = String`: The mime type of the attachment
  * `data = String`: A base64 encoded string of the file
+
+## Examples
+
+### Upload an attachment
+
+```bash
+$ curl -H "Content-Type: application/json" -X POST -d '{"name":"anotherName.txt","mimeType":"text/plain","data":"VGhpcyBpcyBhIHRlc3Q="}' http://localhost:10001/uploadAttachment
+
+{"statusMessage":"Uploaded attachment.","url":"https://example.s3.eu-central-1.amazonaws.com/a_very_long_url"}
+```
+
+### Send an E-Mail
+
+```bash
+$ curl -H "Content-Type: application/json" -X POST -d '{"toEmailList":["user@domain.tld","another@another.tld"],"subject":"SimpleEmailService","messageBody":"Here is a message."}' http://localhost:10001/sendEmail
+
+{"statusMessage":"E-Mail was sent."}
+```
