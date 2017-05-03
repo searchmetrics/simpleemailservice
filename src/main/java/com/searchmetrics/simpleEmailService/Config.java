@@ -43,12 +43,12 @@ public class Config extends Configuration {
     private SimpleEmailServiceConfig simpleEmailService = new SimpleEmailServiceConfig();
 
     @JsonProperty("simpleEmailService")
-    public SimpleEmailServiceConfig getSimpleEmailService() {
+    public SimpleEmailServiceConfig getSimpleEmailServiceConfig() {
         return simpleEmailService;
     }
 
     @JsonProperty("simpleEmailService")
-    public void setSimpleEmailService(SimpleEmailServiceConfig simpleEmailService) {
-        this.simpleEmailService = simpleEmailService;
+    public void setSimpleEmailServiceConfig(SimpleEmailServiceConfig simpleEmailServiceConfig) {
+        this.simpleEmailService = simpleEmailServiceConfig;
     }
 }

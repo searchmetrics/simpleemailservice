@@ -124,8 +124,8 @@ public class SendEmailRequest {
         //
 
         try {
-            message.setFrom(new InternetAddress(config.getSimpleEmailService().getFromEmailAddress()));
-            message.setReplyTo(new Address[]{new InternetAddress(config.getSimpleEmailService().getReplyToEmailAddress())});
+            message.setFrom(new InternetAddress(config.getSimpleEmailServiceConfig().getFromEmailAddress()));
+            message.setReplyTo(new Address[]{new InternetAddress(config.getSimpleEmailServiceConfig().getReplyToEmailAddress())});
         } catch (Exception e) {
             throw  new InternalServerErrorException("Could not set From or Reply-To Address.");
         }
@@ -236,7 +236,7 @@ public class SendEmailRequest {
 
 
         // Optionally print raw email to the console
-        if (config.getSimpleEmailService().getPrintOutgoingEmails()) {
+        if (config.getSimpleEmailServiceConfig().getPrintOutgoingEmails()) {
             try {
                 message.writeTo(System.out);
             } catch (Exception e) {}

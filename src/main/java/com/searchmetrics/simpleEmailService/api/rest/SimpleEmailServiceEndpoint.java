@@ -5,18 +5,26 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
+import com.searchmetrics.simpleEmailService.dto.UploadAttachmentRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URL;
 
 /**
  *
@@ -25,7 +33,8 @@ import javax.ws.rs.core.Response;
 public class SimpleEmailServiceEndpoint {
     private ServiceMetrics serviceMetrics;
     private final AWSCredentials CREDENTIALS;
-    private AmazonSimpleEmailServiceClient client;
+    private AmazonSimpleEmailServiceClient sesClient;
+    private AmazonS3 s3Client;
 
     public SimpleEmailServiceEndpoint(ServiceMetrics serviceMetrics) {
         this.serviceMetrics = serviceMetrics;
@@ -40,9 +49,16 @@ public class SimpleEmailServiceEndpoint {
             );
         }
 
-        client = new AmazonSimpleEmailServiceClient(CREDENTIALS);
-        Region REGION = Region.getRegion(Regions.EU_WEST_1);
-        client.setRegion(REGION);
+        // the region for all AWS clients
+        Region REGION = Region.getRegion(Regions.EU_CENTRAL_1);
+
+        // AWS SimpleEMailService Client
+        sesClient = new AmazonSimpleEmailServiceClient(CREDENTIALS);
+        sesClient.setRegion(REGION);
+
+        // AWS SimpleStorageService Client
+        s3Client = new AmazonS3Client(CREDENTIALS);
+        s3Client.setRegion(REGION);
     }
 
     @POST
@@ -54,7 +70,7 @@ public class SimpleEmailServiceEndpoint {
             SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
 
             // send the email
-            client.sendRawEmail(rawEmailRequest);
+            sesClient.sendRawEmail(rawEmailRequest);
 
 //        } catch (IllegalArgumentException e) {
 //            return Response
@@ -92,6 +108,50 @@ public class SimpleEmailServiceEndpoint {
         }
     }
 
+    @POST
+    @Path("uploadAttachment")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadAttachment(UploadAttachmentRequest uploadRequest) {
+        try {
+            // Upload the attachment
+            PutObjectRequest putRequest = uploadRequest.toPutObjectRequest();
+            PutObjectResult putResult = s3Client.putObject(putRequest);
+
+            // Get the url for downloads
+            GeneratePresignedUrlRequest urlRequest = uploadRequest.getPresignedUrlRequest();
+            URL url = s3Client.generatePresignedUrl(urlRequest);
+
+            return Response.ok().entity(new UploadAttachmentResponse("Uploaded attachment.", url.toString())).build();
+        } catch (Exception e) {
+            serviceMetrics.markUploadAttachmentExceptions();
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
+            return Response.ok().entity(new UploadAttachmentResponse("Not uploaded: " + e.getMessage(), "")).build();
+        }
+    }
+
+    static class UploadAttachmentResponse {
+        private final String STATUS_MESSAGE;
+        private final String URL;
+
+        public UploadAttachmentResponse(String statusMessage, String url) {
+            STATUS_MESSAGE = statusMessage;
+            URL = url;
+        }
+
+        @JsonProperty("statusMessage")
+        public String getStatusMessage() {
+            return STATUS_MESSAGE;
+        }
+
+        @JsonProperty("url")
+        public final String getUrl() {
+            return URL;
+        }
+    }
+
+
     @GET
     @Path("sendStatistics")
     @Produces(MediaType.APPLICATION_JSON)
@@ -101,7 +161,7 @@ public class SimpleEmailServiceEndpoint {
         //
 
         GetSendStatisticsRequest statsRequest = new GetSendStatisticsRequest();
-        GetSendStatisticsResult statsResponse = client.getSendStatistics(statsRequest);
+        GetSendStatisticsResult statsResponse = sesClient.getSendStatistics(statsRequest);
 
         // Create a new send statistics dto from the response
         SendStatistics sendStatistics = new SendStatistics(statsResponse);
