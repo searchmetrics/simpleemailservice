@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.codec.binary.Hex;
 import sun.misc.BASE64Decoder;
+import sun.misc.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +23,8 @@ public class UploadAttachmentRequest {
     private String objectKey;
     private final String name;
     private final String mimeType;
-    private final String data;
+    private String data;
+    private byte[] binData;
 
     @JsonCreator
     public UploadAttachmentRequest(
@@ -33,6 +35,12 @@ public class UploadAttachmentRequest {
         this.name = name;
         this.mimeType = mimeType;
         this.data = data;
+    }
+
+    public UploadAttachmentRequest(String name, String mimeType, InputStream inputStream) throws IOException {
+        this.name = name;
+        this.mimeType = mimeType;
+        this.binData = org.apache.commons.io.IOUtils.toByteArray(inputStream);
     }
 
     @JsonProperty("name")
@@ -51,15 +59,16 @@ public class UploadAttachmentRequest {
     }
 
     public PutObjectRequest toPutObjectRequest() throws IOException, NoSuchAlgorithmException {
-        //
-        // Decode base64 data
-        //
+        if (this.data != null) {
+            //
+            // Decode base64 data
+            //
 
-        BASE64Decoder decoder = new BASE64Decoder();
-        byte[] decodedBytes = {};
-        decodedBytes = decoder.decodeBuffer(this.data);
-
-        InputStream inputStream = new ByteArrayInputStream(decodedBytes);
+            BASE64Decoder decoder = new BASE64Decoder();
+            this.binData = decoder.decodeBuffer(this.data);
+        }
+        // create input stream from binary data
+        InputStream inputStream = new ByteArrayInputStream(this.binData);
 
 
         //
@@ -67,7 +76,7 @@ public class UploadAttachmentRequest {
         //
 
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
-        byte[] digest = messageDigest.digest(decodedBytes);
+        byte[] digest = messageDigest.digest(this.binData);
 
         // create a hexadecimal string and use it as name
         char[] hexDigest = Hex.encodeHex(digest);
@@ -79,7 +88,7 @@ public class UploadAttachmentRequest {
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(this.mimeType);
-        metadata.setContentLength(decodedBytes.length);
+        metadata.setContentLength(this.binData.length);
 
 
         // the file

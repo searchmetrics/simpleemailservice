@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
@@ -19,11 +20,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
+import com.searchmetrics.simpleEmailService.dto.UploadAttachmentMeta;
 import com.searchmetrics.simpleEmailService.dto.UploadAttachmentRequest;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -128,7 +136,29 @@ public class SimpleEmailServiceEndpoint {
             System.out.println(e.getMessage());
             e.printStackTrace();
 
-            return Response.ok().entity(new UploadAttachmentResponse("Not uploaded: " + e.getMessage(), "")).build();
+            return Response.serverError().entity(new UploadAttachmentResponse("Not uploaded: " + e.getMessage(), "")).build();
+        }
+    }
+
+    @POST
+    @Path("uploadAttachmentMultipart")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadAttachmentMultipart(
+            @FormDataParam("attachment") InputStream inputStream,
+            @FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader
+    ) {
+        try {
+            // create UploadAttachmenRequest from binary file
+            UploadAttachmentRequest uploadRequest =
+                    new UploadAttachmentRequest(contentDispositionHeader.getName(), contentDispositionHeader.getType(), inputStream);
+
+            // use normal upload attachment function
+            return uploadAttachment(uploadRequest);
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity(new UploadAttachmentResponse("Not uploaded: " + e.getMessage(), ""))
+                    .build();
         }
     }
 

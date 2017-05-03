@@ -11,3 +11,6 @@ simpleEmailService:
   fromEmailAddress: linus.jahn@searchmetrics.com
   replyToEmailAddress: linus.jahn@searchmetrics.com
   printOutgoingEmails: true
+
+logging:
+  level: DEBUG

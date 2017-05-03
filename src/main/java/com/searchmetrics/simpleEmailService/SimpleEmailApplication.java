@@ -7,6 +7,7 @@ import com.searchmetrics.simpleEmailService.util.LogFilter;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -38,6 +39,7 @@ public class SimpleEmailApplication extends Application<Config> {
 
         final SimpleEmailServiceEndpoint serviceResource = this.beans.getBean(SimpleEmailServiceEndpoint.class);
 
+        environment.jersey().register(MultiPartFeature.class);
         environment.jersey().register(LogFilter.class);
         environment.jersey().register(serviceResource);
     }
