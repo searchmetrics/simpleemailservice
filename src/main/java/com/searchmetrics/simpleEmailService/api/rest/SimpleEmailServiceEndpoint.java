@@ -50,15 +50,16 @@ public class SimpleEmailServiceEndpoint {
         }
 
         // the region for all AWS clients
-        Region REGION = Region.getRegion(Regions.EU_CENTRAL_1);
+        final Region REGION_S3 = Region.getRegion(Regions.EU_CENTRAL_1);
+        final Region REGION_SES = Region.getRegion(Regions.EU_WEST_1);
 
         // AWS SimpleEMailService Client
         sesClient = new AmazonSimpleEmailServiceClient(CREDENTIALS);
-        sesClient.setRegion(REGION);
+        sesClient.setRegion(REGION_SES);
 
         // AWS SimpleStorageService Client
         s3Client = new AmazonS3Client(CREDENTIALS);
-        s3Client.setRegion(REGION);
+        s3Client.setRegion(REGION_S3);
     }
 
     @POST
