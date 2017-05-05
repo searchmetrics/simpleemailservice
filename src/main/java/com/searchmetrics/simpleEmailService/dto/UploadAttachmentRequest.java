@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.searchmetrics.simpleEmailService.Config;
 import org.apache.commons.codec.binary.Hex;
 import sun.misc.BASE64Decoder;
 import sun.misc.IOUtils;
@@ -19,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import static jersey.repackaged.com.google.common.base.Preconditions.checkNotNull;
 
 public class UploadAttachmentRequest {
-    public static final String BUCKET_NAME = "simple-email-service-bucket";
+    private static Config CONFIG;
     private String objectKey;
     private final String name;
     private final String mimeType;
@@ -41,6 +42,10 @@ public class UploadAttachmentRequest {
         this.name = name;
         this.mimeType = mimeType;
         this.binData = org.apache.commons.io.IOUtils.toByteArray(inputStream);
+    }
+
+    public static void setConfig(Config CONFIG) {
+        UploadAttachmentRequest.CONFIG = CONFIG;
     }
 
     @JsonProperty("name")
@@ -97,7 +102,7 @@ public class UploadAttachmentRequest {
         objectKey += "/";
         objectKey += this.name;
 
-        PutObjectRequest putRequest = new PutObjectRequest(BUCKET_NAME, objectKey, inputStream, metadata);
+        PutObjectRequest putRequest = new PutObjectRequest(CONFIG.getSimpleEmailServiceConfig().getS3BucketName(), objectKey, inputStream, metadata);
         return putRequest;
     }
 

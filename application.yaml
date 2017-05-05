@@ -11,6 +11,7 @@ simpleEmailService:
   fromEmailAddress: linus.jahn@searchmetrics.com
   replyToEmailAddress: linus.jahn@searchmetrics.com
   printOutgoingEmails: true
+  s3BucketName: simple-email-service-bucket
 
 logging:
   level: DEBUG

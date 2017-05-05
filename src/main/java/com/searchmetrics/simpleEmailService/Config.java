@@ -11,6 +11,7 @@ public class Config extends Configuration {
         private String fromEmailAddress = "";
         private String replyToEmailAddress = "";
         private boolean printOutgoingEmails = false;
+        private String s3BucketName = "";
 
         @JsonProperty("fromEmailAddress")
         public String getFromEmailAddress() {
@@ -37,6 +38,15 @@ public class Config extends Configuration {
         @JsonProperty("printOutgoingEmails")
         public void setPrintOutgoingEmails(boolean printOutgoingEmails) {
             this.printOutgoingEmails = printOutgoingEmails;
+        }
+
+        @JsonProperty("s3BucketName")
+        public String getS3BucketName() {
+            return s3BucketName;
+        }
+        @JsonProperty("s3BucketName")
+        public void setS3BucketName(String s3BucketName) {
+            this.s3BucketName = s3BucketName;
         }
     }
 
