@@ -7,7 +7,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
@@ -16,6 +15,7 @@ import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.Config;
+import com.searchmetrics.simpleEmailService.SendEmailRequestConverter;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
@@ -35,14 +35,15 @@ import java.net.URL;
  */
 @Path("/")
 public class SimpleEmailServiceEndpoint {
-    private static Config CONFIG;
     private ServiceMetrics serviceMetrics;
+    private Config config;
     private final AWSCredentials CREDENTIALS;
     private AmazonSimpleEmailServiceClient sesClient;
     private AmazonS3 s3Client;
 
-    public SimpleEmailServiceEndpoint(ServiceMetrics serviceMetrics) {
+    public SimpleEmailServiceEndpoint(ServiceMetrics serviceMetrics, Config config) {
         this.serviceMetrics = serviceMetrics;
+        this.config = config;
 
         try {
             CREDENTIALS = new ProfileCredentialsProvider().getCredentials();
@@ -67,31 +68,16 @@ public class SimpleEmailServiceEndpoint {
         s3Client.setRegion(REGION_S3);
     }
 
-    public static void setConfig(Config CONFIG) {
-        SimpleEmailServiceEndpoint.CONFIG = CONFIG;
-    }
-
     @POST
     @Path("sendEmail")
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendEmail(SendEmailRequest emailRequest) {
         try {
             // convert the parsed dto to a sendable email for AWS
-            SendRawEmailRequest rawEmailRequest = emailRequest.toAWSRawEmailRequest();
+            SendRawEmailRequest rawEmailRequest = SendEmailRequestConverter.toAWSSendRawEmailRequest(emailRequest, config);
 
             // send the email
             sesClient.sendRawEmail(rawEmailRequest);
-
-//        } catch (IllegalArgumentException e) {
-//            return Response
-//                    .status(400)
-//                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
-//                    .build();
-//        } catch (InternalServerErrorException e) {
-//            return Response
-//                    .serverError()
-//                    .entity(new SendEmailResponse("E-Mail was not send: " + e.getMessage()))
-//                    .build();
         } catch (Exception e) {
             serviceMetrics.markSendEmailException();
 
@@ -101,7 +87,7 @@ public class SimpleEmailServiceEndpoint {
                     .build();
         }
 
-        // return 200 code and
+        // return 200 code
         return Response.ok().entity(new SendEmailResponse("E-Mail was sent.")).build();
     }
 
@@ -128,7 +114,7 @@ public class SimpleEmailServiceEndpoint {
             PutObjectResult putResult = s3Client.putObject(putRequest);
 
             // Get the url for downloads
-            URL url = s3Client.getUrl(CONFIG.getSimpleEmailServiceConfig().getS3BucketName(), uploadRequest.getFileKey());
+            URL url = s3Client.getUrl(config.getSimpleEmailServiceConfig().getS3BucketName(), uploadRequest.getFileKey());
 
             return Response.ok().entity(new UploadAttachmentResponse("Uploaded attachment.", url.toString())).build();
         } catch (Exception e) {
@@ -149,9 +135,9 @@ public class SimpleEmailServiceEndpoint {
             @FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader
     ) {
         try {
-            // create UploadAttachmenRequest from binary file
-            UploadAttachmentRequest uploadRequest =
-                    new UploadAttachmentRequest(contentDispositionHeader.getFileName(), contentDispositionHeader.getType(), inputStream);
+            // create UploadAttachmentRequest from binary file
+            UploadAttachmentRequest uploadRequest = new UploadAttachmentRequest(
+                    contentDispositionHeader.getFileName(), contentDispositionHeader.getType(), inputStream);
 
             // use normal upload attachment function
             return uploadAttachment(uploadRequest);

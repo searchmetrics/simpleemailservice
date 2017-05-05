@@ -5,6 +5,12 @@ import com.searchmetrics.simpleEmailService.api.rest.SimpleEmailServiceEndpoint;
 import org.springframework.context.annotation.Bean;
 
 public class SpringConfig {
+    private Config config;
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
     @Bean
     public MetricRegistry metricRegistry() {
         return new MetricRegistry();
@@ -17,6 +23,6 @@ public class SpringConfig {
 
     @Bean
     public SimpleEmailServiceEndpoint simpleEmailServiceEndpoint(final ServiceMetrics serviceMetrics) {
-        return new SimpleEmailServiceEndpoint(serviceMetrics);
+        return new SimpleEmailServiceEndpoint(serviceMetrics, this.config);
     }
 }

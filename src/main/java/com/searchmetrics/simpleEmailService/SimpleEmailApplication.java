@@ -19,7 +19,6 @@ public class SimpleEmailApplication extends Application<Config> {
     private final ApplicationContext beans;
 
     public SimpleEmailApplication() {
-        super();
         beans = new AnnotationConfigApplicationContext(SpringConfig.class);
     }
 
@@ -36,9 +35,9 @@ public class SimpleEmailApplication extends Application<Config> {
 
     @Override
     public void run(Config config, Environment environment) throws Exception {
-        SimpleEmailServiceEndpoint.setConfig(config);
-        SendEmailRequest.setConfig(config);
         UploadAttachmentRequest.setConfig(config);
+
+        this.beans.getClass().setConfig(config);
 
         final SimpleEmailServiceEndpoint serviceResource = this.beans.getBean(SimpleEmailServiceEndpoint.class);
 

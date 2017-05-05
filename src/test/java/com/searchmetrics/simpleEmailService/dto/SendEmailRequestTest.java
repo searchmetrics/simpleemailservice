@@ -1,7 +1,9 @@
 package com.searchmetrics.simpleEmailService.dto;
 
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
+import com.searchmetrics.simpleEmailService.Config;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,6 +29,18 @@ public class SendEmailRequestTest {
 
 //    @Rule
 //    public ExpectedException thrown = ExpectedException.none();
+
+    @BeforeClass
+    public void beforeClass() {
+//        Config config = new Config();
+//        Config.SimpleEmailServiceConfig emailServiceConfig = new Config.SimpleEmailServiceConfig();
+//        emailServiceConfig.setFromEmailAddress("an-email@address.tld");
+//        emailServiceConfig.setReplyToEmailAddress("reply-to-me@address.tld");
+//        emailServiceConfig.setPrintOutgoingEmails(false);
+//        config.setSimpleEmailServiceConfig(emailServiceConfig);
+//
+//        SendEmailRequest.setConfig(config);
+    }
 
     @Test
     public void testConstructorAndGetters() {
