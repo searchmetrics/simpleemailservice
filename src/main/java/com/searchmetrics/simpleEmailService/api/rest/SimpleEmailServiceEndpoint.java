@@ -122,8 +122,7 @@ public class SimpleEmailServiceEndpoint {
             PutObjectResult putResult = s3Client.putObject(putRequest);
 
             // Get the url for downloads
-            GeneratePresignedUrlRequest urlRequest = uploadRequest.getPresignedUrlRequest();
-            URL url = s3Client.generatePresignedUrl(urlRequest);
+            URL url = s3Client.getUrl(uploadRequest.BUCKET_NAME, uploadRequest.getFileKey());
 
             return Response.ok().entity(new UploadAttachmentResponse("Uploaded attachment.", url.toString())).build();
         } catch (Exception e) {

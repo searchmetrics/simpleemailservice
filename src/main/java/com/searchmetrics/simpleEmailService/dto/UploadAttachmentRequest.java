@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import static jersey.repackaged.com.google.common.base.Preconditions.checkNotNull;
 
 public class UploadAttachmentRequest {
-    private static final String BUCKET_NAME = "simple-email-service-bucket";
+    public static final String BUCKET_NAME = "simple-email-service-bucket";
     private String objectKey;
     private final String name;
     private final String mimeType;
@@ -101,11 +101,7 @@ public class UploadAttachmentRequest {
         return putRequest;
     }
 
-    public GeneratePresignedUrlRequest getPresignedUrlRequest() {
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(BUCKET_NAME, checkNotNull(objectKey));
-        generatePresignedUrlRequest.setMethod(HttpMethod.GET);
-
-        return generatePresignedUrlRequest;
+    public String getFileKey() {
+        return checkNotNull(objectKey);
     }
 }
