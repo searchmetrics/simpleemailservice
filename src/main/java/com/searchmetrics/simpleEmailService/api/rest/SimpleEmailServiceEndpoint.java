@@ -10,23 +10,18 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
-import com.searchmetrics.simpleEmailService.dto.UploadAttachmentMeta;
 import com.searchmetrics.simpleEmailService.dto.UploadAttachmentRequest;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -118,7 +113,7 @@ public class SimpleEmailServiceEndpoint {
     }
 
     @POST
-    @Path("uploadAttachment")
+    @Path("uploadAttachmentJson")
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadAttachment(UploadAttachmentRequest uploadRequest) {
         try {
@@ -141,7 +136,7 @@ public class SimpleEmailServiceEndpoint {
     }
 
     @POST
-    @Path("uploadAttachmentMultipart")
+    @Path("uploadAttachmentBin")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadAttachmentMultipart(
@@ -151,7 +146,7 @@ public class SimpleEmailServiceEndpoint {
         try {
             // create UploadAttachmenRequest from binary file
             UploadAttachmentRequest uploadRequest =
-                    new UploadAttachmentRequest(contentDispositionHeader.getName(), contentDispositionHeader.getType(), inputStream);
+                    new UploadAttachmentRequest(contentDispositionHeader.getFileName(), contentDispositionHeader.getType(), inputStream);
 
             // use normal upload attachment function
             return uploadAttachment(uploadRequest);

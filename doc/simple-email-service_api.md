@@ -1,8 +1,13 @@
 # SimpleEmailService API Documentation
 
-### `POST /uploadAttachment/`
+### `POST /uploadAttachmentBin/`
 This will upload an attachment to S3 and return a download link to it. It
 requires an [Attachment](#attachment) and returns a
+[UploadAttachmentResponse](#uploadattachmentresponse).
+
+### `POST /uploadAttachmentJson/`
+This will upload an attachment to S3 and return a download link to it. It
+requires an [JSON Attachment](#jsonattachment) and returns a
 [UploadAttachmentResponse](#uploadattachmentresponse).
 
 ### `POST /sendEmail/`
@@ -12,6 +17,17 @@ This needs a JSON [SendEmailRequest](#sendemailrequest).
 ### `GET /sendStatistics/`
 This will get and return the send statistics from AWS of the last two weeks.
 It will return a [SendStatistics](#sendstatistics) JSON object.
+
+### Attachment
+This is a multipart form data object used to transmit the attachment in binary
+form.
+ * `attachment = File`: The binary file
+
+### JSON Attachment
+A simple attachment for an E-Mail
+ * `name = String`: The file name of the attachment.
+ * `mimeType = String`: The mime type of the attachment
+ * `data = String`: A base64 encoded string of the file
 
 ### SendStatistics
  * `dataPoints = Array`: An Array of [DataPoints](#datapoint)
@@ -37,18 +53,20 @@ This is a JSON object containing all information to send the E-Mail.
  * `messageBody = String`: The main message of the E-Mail (can be HTML)
  * `attachmentList = Array`: An array of [Attachments](#attachment) (This is optional)
 
-### Attachment
-A simple attachment for an E-Mail
- * `name = String`: The file name of the attachment.
- * `mimeType = String`: The mime type of the attachment
- * `data = String`: A base64 encoded string of the file
-
 ## Examples
 
-### Upload an attachment
+### Upload an attachment in binary form
 
 ```bash
-$ curl -H "Content-Type: application/json" -X POST -d '{"name":"anotherName.txt","mimeType":"text/plain","data":"VGhpcyBpcyBhIHRlc3Q="}' http://localhost:10001/uploadAttachment
+$ curl -F attachment=@localFileName http://localhost:10001/uploadAttachmentBin
+
+{"statusMessage":"Uploaded attachment.","url":"https://example.s3.eu-central-1.amazonaws.com/a_very_long_url"}
+```
+
+### Upload an attachment by using JSON
+
+```bash
+$ curl -H "Content-Type: application/json" -X POST -d '{"name":"anotherName.txt","mimeType":"text/plain","data":"VGhpcyBpcyBhIHRlc3Q="}' http://localhost:10001/uploadAttachmentJson
 
 {"statusMessage":"Uploaded attachment.","url":"https://example.s3.eu-central-1.amazonaws.com/a_very_long_url"}
 ```
