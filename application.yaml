@@ -13,5 +13,5 @@ simpleEmailService:
   printOutgoingEmails: true
   s3BucketName: simple-email-service-bucket
 
-logging:
-  level: DEBUG
+#logging:
+#  level: DEBUG

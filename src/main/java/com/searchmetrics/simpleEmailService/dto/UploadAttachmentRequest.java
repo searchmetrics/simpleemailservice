@@ -1,7 +1,5 @@
 package com.searchmetrics.simpleEmailService.dto;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -9,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.Config;
 import org.apache.commons.codec.binary.Hex;
 import sun.misc.BASE64Decoder;
-import sun.misc.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

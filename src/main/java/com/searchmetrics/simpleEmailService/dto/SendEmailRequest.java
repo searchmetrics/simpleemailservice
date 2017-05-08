@@ -1,20 +1,10 @@
 package com.searchmetrics.simpleEmailService.dto;
 
-import com.amazonaws.services.simpleemail.model.RawMessage;
-import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.searchmetrics.simpleEmailService.Config;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.*;
-import javax.ws.rs.InternalServerErrorException;
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

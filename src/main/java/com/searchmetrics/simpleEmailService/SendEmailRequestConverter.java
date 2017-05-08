@@ -9,7 +9,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.*;
-import javax.ws.rs.InternalServerErrorException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,7 +18,8 @@ import java.util.UUID;
 
 public class SendEmailRequestConverter {
     public static SendRawEmailRequest toAWSSendRawEmailRequest(
-            com.searchmetrics.simpleEmailService.dto.SendEmailRequest emailRequest, Config config
+            com.searchmetrics.simpleEmailService.dto.SendEmailRequest emailRequest,
+            Config config
     ) throws MessagingException, IOException {
         // create a new Message
         Message mail = createNewMessage(config);
@@ -120,12 +120,12 @@ public class SendEmailRequestConverter {
     //
     public static SendRawEmailRequest messageToRawEmailRequest(Message mail) throws IOException, MessagingException {
         // Write raw E-Mail to output stream
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         mail.writeTo(outputStream);
 
         // Create a AWS raw message and send request from the output stream
-        RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
-        SendRawEmailRequest emailRequest = new SendRawEmailRequest(rawMessage);
+        final RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
+        final SendRawEmailRequest emailRequest = new SendRawEmailRequest(rawMessage);
 
         return emailRequest;
     }

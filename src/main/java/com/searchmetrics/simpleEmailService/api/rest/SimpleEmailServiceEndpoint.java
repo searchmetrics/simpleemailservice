@@ -20,7 +20,6 @@ import com.searchmetrics.simpleEmailService.ServiceMetrics;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
 import com.searchmetrics.simpleEmailService.dto.UploadAttachmentRequest;
-
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -91,7 +90,7 @@ public class SimpleEmailServiceEndpoint {
         return Response.ok().entity(new SendEmailResponse("E-Mail was sent.")).build();
     }
 
-    static class SendEmailResponse {
+    private class SendEmailResponse {
         private final String STATUS_MESSAGE;
 
         public SendEmailResponse(String statusMessage) {
@@ -148,7 +147,7 @@ public class SimpleEmailServiceEndpoint {
         }
     }
 
-    static class UploadAttachmentResponse {
+    private class UploadAttachmentResponse {
         private final String STATUS_MESSAGE;
         private final String URL;
 
