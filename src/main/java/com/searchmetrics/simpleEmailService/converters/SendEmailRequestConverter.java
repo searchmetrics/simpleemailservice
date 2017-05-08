@@ -1,7 +1,8 @@
-package com.searchmetrics.simpleEmailService;
+package com.searchmetrics.simpleEmailService.converters;
 
 import com.amazonaws.services.simpleemail.model.RawMessage;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
+import com.searchmetrics.simpleEmailService.Config;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 
 import javax.mail.Address;

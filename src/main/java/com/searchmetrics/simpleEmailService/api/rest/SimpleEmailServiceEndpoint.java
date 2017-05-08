@@ -15,8 +15,9 @@ import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.Config;
-import com.searchmetrics.simpleEmailService.SendEmailRequestConverter;
+import com.searchmetrics.simpleEmailService.converters.SendEmailRequestConverter;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
+import com.searchmetrics.simpleEmailService.converters.UploadAttachmentRequestConverter;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
 import com.searchmetrics.simpleEmailService.dto.UploadAttachmentRequest;
@@ -109,11 +110,13 @@ public class SimpleEmailServiceEndpoint {
     public Response uploadAttachment(UploadAttachmentRequest uploadRequest) {
         try {
             // Upload the attachment
-            PutObjectRequest putRequest = uploadRequest.toPutObjectRequest();
+            PutObjectRequest putRequest = UploadAttachmentRequestConverter.toPutObjectRequest(uploadRequest, config);
             PutObjectResult putResult = s3Client.putObject(putRequest);
 
+            String objectKey = putRequest.getKey();
+
             // Get the url for downloads
-            URL url = s3Client.getUrl(config.getSimpleEmailServiceConfig().getS3BucketName(), uploadRequest.getFileKey());
+            URL url = s3Client.getUrl(config.getSimpleEmailServiceConfig().getS3BucketName(), objectKey);
 
             return Response.ok().entity(new UploadAttachmentResponse("Uploaded attachment.", url.toString())).build();
         } catch (Exception e) {

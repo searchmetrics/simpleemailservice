@@ -56,7 +56,7 @@ public class SendEmailRequest {
         this.toEmailList = checkNotNull(toEmailList);
         this.subject = checkNotNull(subject);
         this.messageBody = checkNotNull(messageBody);
-        this.attachmentList = attachmentList == null ? new ArrayList<Attachment>() : attachmentList;
+        this.attachmentList = attachmentList == null ? new ArrayList<>() : attachmentList;
 
         if (toEmailList.size() < 1) {
             throw new IllegalArgumentException("toEmailList must contain 1 or more values");

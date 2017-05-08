@@ -7,7 +7,7 @@ import io.dropwizard.Configuration;
  *
  */
 public class Config extends Configuration {
-    public class SimpleEmailServiceConfig {
+    public static class SimpleEmailServiceConfig {
         private String fromEmailAddress = "";
         private String replyToEmailAddress = "";
         private boolean printOutgoingEmails = false;

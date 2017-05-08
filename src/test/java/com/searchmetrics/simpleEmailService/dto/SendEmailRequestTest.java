@@ -2,19 +2,16 @@ package com.searchmetrics.simpleEmailService.dto;
 
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.searchmetrics.simpleEmailService.Config;
-import com.searchmetrics.simpleEmailService.SendEmailRequestConverter;
+import com.searchmetrics.simpleEmailService.converters.SendEmailRequestConverter;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  *
