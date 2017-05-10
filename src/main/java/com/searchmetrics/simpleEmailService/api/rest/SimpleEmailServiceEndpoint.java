@@ -91,7 +91,7 @@ public class SimpleEmailServiceEndpoint {
         return Response.ok().entity(new SendEmailResponse("E-Mail was sent.")).build();
     }
 
-    private class SendEmailResponse {
+    class SendEmailResponse {
         private final String STATUS_MESSAGE;
 
         public SendEmailResponse(String statusMessage) {
@@ -132,7 +132,7 @@ public class SimpleEmailServiceEndpoint {
     @Path("uploadAttachmentBin")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadAttachmentMultipart(
+    public Response uploadAttachmentBinary(
             @FormDataParam("attachment") InputStream inputStream,
             @FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader
     ) {
@@ -150,7 +150,7 @@ public class SimpleEmailServiceEndpoint {
         }
     }
 
-    private class UploadAttachmentResponse {
+    class UploadAttachmentResponse {
         private final String STATUS_MESSAGE;
         private final String URL;
 

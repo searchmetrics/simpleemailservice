@@ -64,11 +64,9 @@ public class SendStatistics {
     }
 
     public SendStatistics(GetSendStatisticsResult statsResult) {
-        Iterator<SendDataPoint> iterator = statsResult.getSendDataPoints().iterator();
         List<DataPoint> dataPoints = new ArrayList<>();
 
-        while (iterator.hasNext()) {
-            SendDataPoint element = iterator.next();
+        for (SendDataPoint element : statsResult.getSendDataPoints()) {
             dataPoints.add(new DataPoint(
                     element.getTimestamp(),
                     element.getDeliveryAttempts(),
