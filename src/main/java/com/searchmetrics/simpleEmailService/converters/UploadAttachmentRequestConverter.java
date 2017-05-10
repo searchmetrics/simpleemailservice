@@ -67,8 +67,7 @@ public class UploadAttachmentRequestConverter {
         // <SHA512>/<real file name>
         String objectKey = String.format("%s/%s", hexDigest, attachmentRequest.getName());
 
-        PutObjectRequest putRequest = new PutObjectRequest(CONFIG.getSimpleEmailServiceConfig().getS3BucketName(),
+        return new PutObjectRequest(CONFIG.getSimpleEmailServiceConfig().getS3BucketName(),
                 objectKey, inputStream, metadata);
-        return putRequest;
     }
 }

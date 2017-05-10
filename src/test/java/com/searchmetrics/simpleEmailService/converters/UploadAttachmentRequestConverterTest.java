@@ -14,7 +14,7 @@ import java.io.InputStream;
 import static org.junit.Assert.fail;
 
 public class UploadAttachmentRequestConverterTest {
-    final Config CONFIG;
+    private final Config CONFIG;
 
     public UploadAttachmentRequestConverterTest() {
         Config config = new Config();

@@ -1,16 +1,8 @@
 package com.searchmetrics.simpleEmailService.dto;
 
-import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
-import com.searchmetrics.simpleEmailService.Config;
-import com.searchmetrics.simpleEmailService.converters.SendEmailRequestConverter;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import javax.mail.MessagingException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,23 +11,11 @@ import java.util.List;
  *
  */
 public class SendEmailRequestTest {
-    private final Config CONFIG;
     private final static List<String> EMAIL_LIST = new ArrayList<String>(){
         {
             addAll(Arrays.asList("akrobinson74@gmail.com", "categorical@rocketmail.com"));
         }
     };
-
-    public SendEmailRequestTest() {
-        Config config = new Config();
-        Config.SimpleEmailServiceConfig emailServiceConfig = new Config.SimpleEmailServiceConfig();
-        emailServiceConfig.setFromEmailAddress("noreply@searchmetrics.com");
-        emailServiceConfig.setReplyToEmailAddress("noreply@searchmetrics.com");
-        emailServiceConfig.setPrintOutgoingEmails(false);
-        config.setSimpleEmailServiceConfig(emailServiceConfig);
-
-        CONFIG = config;
-    }
 
     @Test
     public void testConstructorAndGettersWithoutAttachments() {

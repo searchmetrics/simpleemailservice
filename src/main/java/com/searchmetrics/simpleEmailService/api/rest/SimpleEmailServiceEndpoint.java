@@ -8,15 +8,14 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsRequest;
 import com.amazonaws.services.simpleemail.model.GetSendStatisticsResult;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.searchmetrics.simpleEmailService.Config;
-import com.searchmetrics.simpleEmailService.converters.SendEmailRequestConverter;
 import com.searchmetrics.simpleEmailService.ServiceMetrics;
+import com.searchmetrics.simpleEmailService.converters.SendEmailRequestConverter;
 import com.searchmetrics.simpleEmailService.converters.UploadAttachmentRequestConverter;
 import com.searchmetrics.simpleEmailService.dto.SendEmailRequest;
 import com.searchmetrics.simpleEmailService.dto.SendStatistics;
@@ -35,9 +34,8 @@ import java.net.URL;
  */
 @Path("/")
 public class SimpleEmailServiceEndpoint {
-    private ServiceMetrics serviceMetrics;
-    private Config config;
-    private final AWSCredentials CREDENTIALS;
+    private final ServiceMetrics serviceMetrics;
+    private final Config config;
     private AmazonSimpleEmailServiceClient sesClient;
     private AmazonS3 s3Client;
 
@@ -45,6 +43,7 @@ public class SimpleEmailServiceEndpoint {
         this.serviceMetrics = serviceMetrics;
         this.config = config;
 
+        AWSCredentials CREDENTIALS;
         try {
             CREDENTIALS = new ProfileCredentialsProvider().getCredentials();
         } catch (Exception e) {
@@ -111,7 +110,7 @@ public class SimpleEmailServiceEndpoint {
         try {
             // Upload the attachment
             PutObjectRequest putRequest = UploadAttachmentRequestConverter.toPutObjectRequest(uploadRequest, config);
-            PutObjectResult putResult = s3Client.putObject(putRequest);
+            s3Client.putObject(putRequest);
 
             String objectKey = putRequest.getKey();
 

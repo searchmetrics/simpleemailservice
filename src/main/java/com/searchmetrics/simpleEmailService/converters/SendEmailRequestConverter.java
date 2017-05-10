@@ -126,8 +126,7 @@ public class SendEmailRequestConverter {
 
         // Create a AWS raw message and send request from the output stream
         final RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
-        final SendRawEmailRequest emailRequest = new SendRawEmailRequest(rawMessage);
 
-        return emailRequest;
+        return new SendRawEmailRequest(rawMessage);
     }
 }
