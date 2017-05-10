@@ -22,19 +22,15 @@ public class SendEmailRequestTest {
     private final Config CONFIG;
     private final static List<String> EMAIL_LIST = new ArrayList<String>(){
         {
-            addAll(
-                Arrays.asList(
-                    "a.robinson@searchmetrics.com",
-                    "linus.jahn@searchmetrics.com",
-                    "p.pohlitz@searchmetrics.com"));
+            addAll(Arrays.asList("akrobinson74@gmail.com", "categorical@rocketmail.com"));
         }
     };
 
     public SendEmailRequestTest() {
         Config config = new Config();
         Config.SimpleEmailServiceConfig emailServiceConfig = new Config.SimpleEmailServiceConfig();
-        emailServiceConfig.setFromEmailAddress("linus.jahn@searchmetrics.com");
-        emailServiceConfig.setReplyToEmailAddress("linus.jahn@searchmetrics.com");
+        emailServiceConfig.setFromEmailAddress("noreply@searchmetrics.com");
+        emailServiceConfig.setReplyToEmailAddress("noreply@searchmetrics.com");
         emailServiceConfig.setPrintOutgoingEmails(false);
         config.setSimpleEmailServiceConfig(emailServiceConfig);
 

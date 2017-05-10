@@ -23,11 +23,7 @@ public class SendEmailRequestConverterTest {
     private final Config CONFIG;
     private final static List<String> EMAIL_LIST = new ArrayList<String>() {
         {
-            addAll(
-                    Arrays.asList(
-                            "a.robinson@searchmetrics.com",
-                            "linus.jahn@searchmetrics.com",
-                            "p.pohlitz@searchmetrics.com"));
+            addAll(Arrays.asList("akrobinson74@gmail.com", "categorical@rocketmail.com"));
         }
     };
 
@@ -38,8 +34,8 @@ public class SendEmailRequestConverterTest {
         Config config = new Config();
         Config.SimpleEmailServiceConfig emailServiceConfig = new Config.SimpleEmailServiceConfig();
         emailServiceConfig.setPrintOutgoingEmails(false);
-        emailServiceConfig.setReplyToEmailAddress("linus.jahn@searchmetrics.com");
-        emailServiceConfig.setFromEmailAddress("linus.jahn@searchmetrics.com");
+        emailServiceConfig.setReplyToEmailAddress("noreply@searchmetrics.com");
+        emailServiceConfig.setFromEmailAddress("noreply@searchmetrics.com");
         config.setSimpleEmailServiceConfig(emailServiceConfig);
 
         CONFIG = config;
